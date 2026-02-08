@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Masjid Baiturrahman</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f8f9fa; padding-top: 20px; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .btn-masjid { background: linear-gradient(135deg, #1A4D8C 0%, #2E77BB 100%); color: white; }
+        .btn-masjid:hover { background: linear-gradient(135deg, #153a6e 0%, #1A4D8C 100%); }
+        .header-bg { 
+            background: linear-gradient(135deg, #1A4D8C 0%, #153a6e 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+        .preview-box { 
+            background: white; 
+            border-left: 5px solid #1A4D8C;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 800px;">
+        <!-- HEADER -->
+        <div class="header-bg text-center">
+            <h1><i class="fas fa-mosque"></i> Admin Masjid Baiturrahman</h1>
+            <p class="mb-0">Update display digital masjid dari HP/komputer</p>
+        </div>
+
+        <!-- ALERT STATUS -->
+        <div class="alert alert-info alert-dismissible fade show" role="alert" id="statusAlert">
+            <i class="fas fa-info-circle me-2"></i>
+            <span id="statusText">Masukkan data dan password admin</span>
+            <button type="button" class="btn-close" onclick="hideAlert()"></button>
+        </div>
+
+        <!-- FORM UPDATE -->
+        <div class="card p-4 mb-4">
+            <h4 class="mb-4"><i class="fas fa-edit text-primary"></i> Update Konten Display</h4>
+            
+            <form id="adminForm">
+                <!-- RUNNING TEXT -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Running Text <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="runningText" rows="2" 
+                              placeholder="Contoh: Pengajian malam ini ba'da Isya, semua diharapkan hadir..."
+                              required></textarea>
+                    <div class="form-text">Teks berjalan di bagian bawah display</div>
+                </div>
+
+                <!-- HIKMAH HARIAN -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Hikmah Harian</label>
+                    <textarea class="form-control" id="wisdomText" rows="3"
+                              placeholder="Contoh: Barangsiapa yang shalat Subuh, maka ia berada dalam jaminan Allah."></textarea>
+                    <div class="form-text">Hadis atau ayat yang ditampilkan di sidebar kiri</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Referensi</label>
+                        <input type="text" class="form-control" id="wisdomRef" 
+                               placeholder="Contoh: HR. Muslim">
+                        <div class="form-text">Sumber hikmah (QS/HR)</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Wallpaper URL (Opsional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-image"></i></span>
+                            <input type="text" class="form-control" id="wallpaperUrl" 
+                                   placeholder="https://images.unsplash.com/...">
+                        </div>
+                        <div class="form-text">Link gambar untuk background</div>
+                    </div>
+                </div>
+
+                <!-- PASSWORD -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Password Admin <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="adminPassword" 
+                               placeholder="Masukkan password admin" required>
+                        <button class="btn btn-outline-secondary" type="button" 
+                                onclick="togglePassword()">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                    <div class="form-text">Default: <code>admin123</code> (bisa diganti di backend)</div>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <button type="submit" class="btn btn-masjid btn-lg w-100 py-3" id="submitBtn">
+                    <i class="fas fa-paper-plane me-2"></i> Update Display
+                </button>
+            </form>
+        </div>
+
+        <!-- PREVIEW -->
+        <div class="card p-4">
+            <h4><i class="fas fa-desktop text-primary"></i> Preview</h4>
+            <p class="text-muted">Ini yang akan muncul di display TV:</p>
+            
+            <div class="preview-box">
+                <div class="mb-3">
+                    <small class="text-muted">RUNNING TEXT:</small>
+                    <div class="fw-bold" id="previewRunning">- Belum diisi -</div>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">HIKMAH:</small>
+                    <div class="fst-italic" id="previewWisdom">- Belum diisi -</div>
+                </div>
+                <div>
+                    <small class="text-muted">REFERENSI:</small>
+                    <div class="text-primary fw-bold" id="previewRef">- Belum diisi -</div>
+                </div>
+            </div>
+            
+            <div class="mt-3 text-center">
+                <button class="btn btn-outline-primary btn-sm" onclick="updatePreview()">
+                    <i class="fas fa-sync-alt me-1"></i> Refresh Preview
+                </button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="text-center mt-4 mb-5 text-muted">
+            <small>
+                <i class="fas fa-info-circle me-1"></i>
+                Display akan otomatis update dalam 30 detik setelah submit
+            </small>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURASI - GANTI INI!
+        const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbzsDOKEhe7C3S9q8dZYQHrY8IHet61bdCwroHRzUizvSl4LzY5nFQZ5cWIKEgBz0Yc7OA/exec'; // GANTI DENGAN URL LU!
+        
+        // Fungsi toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('adminPassword');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.className = 'fas fa-eye';
+            }
+        }
+        
+        // Fungsi update preview
+        function updatePreview() {
+            document.getElementById('previewRunning').textContent = 
+                document.getElementById('runningText').value || '- Belum diisi -';
+            document.getElementById('previewWisdom').textContent = 
+                document.getElementById('wisdomText').value || '- Belum diisi -';
+            document.getElementById('previewRef').textContent = 
+                document.getElementById('wisdomRef').value || '- Belum diisi -';
+        }
+        
+        // Fungsi show alert
+        function showAlert(message, type = 'info') {
+            const alert = document.getElementById('statusAlert');
+            const text = document.getElementById('statusText');
+            
+            // Update class
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            
+            // Update icon
+            let icon = 'info-circle';
+            if (type === 'success') icon = 'check-circle';
+            if (type === 'warning') icon = 'exclamation-triangle';
+            if (type === 'danger') icon = 'times-circle';
+            
+            // Update content
+            text.innerHTML = `<i class="fas fa-${icon} me-2"></i> ${message}`;
+            
+            // Auto hide after 5 seconds for success
+            if (type === 'success') {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            }
+        }
+        
+        // Fungsi hide alert
+        function hideAlert() {
+            document.getElementById('statusAlert').style.display = 'none';
+        }
+        
+        // Form submission handler
+        document.getElementById('adminForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            
+            // Get form data
+            const formData = {
+                runningText: document.getElementById('runningText').value.trim(),
+                wisdomText: document.getElementById('wisdomText').value.trim(),
+                wisdomRef: document.getElementById('wisdomRef').value.trim(),
+                wallpaperUrl: document.getElementById('wallpaperUrl').value.trim(),
+                password: document.getElementById('adminPassword').value.trim()
+            };
+            
+            // Validation
+            if (!formData.password) {
+                showAlert('Masukkan password admin!', 'warning');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Mengirim...';
+            
+            try {
+                // Send to Google Apps Script
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                // Parse response
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Success
+                    showAlert(result.message || 'Data berhasil dikirim! Display akan update dalam 30 detik.', 'success');
+                    
+                    // Reset form (except password)
+                    document.getElementById('runningText').value = '';
+                    document.getElementById('wisdomText').value = '';
+                    document.getElementById('wisdomRef').value = '';
+                    document.getElementById('wallpaperUrl').value = '';
+                    
+                    // Update preview
+                    updatePreview();
+                    
+                } else {
+                    // Error from backend
+                    showAlert(result.error || 'Terjadi kesalahan', 'danger');
+                }
+                
+            } catch (error) {
+                // Network error
+                console.error('Error:', error);
+                showAlert('Gagal terhubung ke server. Cek koneksi internet.', 'danger');
+                
+            } finally {
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+        
+        // Live preview updates
+        document.getElementById('runningText').addEventListener('input', updatePreview);
+        document.getElementById('wisdomText').addEventListener('input', updatePreview);
+        document.getElementById('wisdomRef').addEventListener('input', updatePreview);
+        
+        // Initialize preview
+        updatePreview();
+        
+        // Auto-hide alert after 10 seconds
+        setTimeout(() => {
+            const alert = document.getElementById('statusAlert');
+            if (alert.style.display !== 'none') {
+                alert.style.opacity = '0';
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 500);
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
